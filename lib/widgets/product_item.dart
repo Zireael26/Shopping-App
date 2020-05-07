@@ -1,46 +1,47 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shoppingapp/pages/product_detail_page.dart';
+import 'package:shoppingapp/providers/product.dart';
 
 class ProductItem extends StatelessWidget {
-  final String imageUrl;
-  final String id;
-  final String title;
-  final String description;
-
-  ProductItem({
-    @required this.imageUrl,
-    @required this.id,
-    @required this.title,
-    @required this.description,
-  });
-
   @override
   Widget build(BuildContext context) {
+    final loadedProduct = Provider.of<Product>(context, listen: false);
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(10.0),
       child: GridTile(
         child: GestureDetector(
           onTap: () {
-            Navigator.of(context)
-                .pushNamed(ProductDetailPage.routeName, arguments: id);
+            Navigator.of(context).pushNamed(ProductDetailPage.routeName,
+                arguments: loadedProduct.id);
           },
           child: Image.network(
-            imageUrl,
+            loadedProduct.imageUrl,
             fit: BoxFit.cover,
           ),
         ),
         footer: GridTileBar(
           backgroundColor: Colors.black87,
-          leading: IconButton(
-            icon: Icon(Icons.favorite_border),
-            color: Theme.of(context).accentColor,
-            onPressed: () {},
+          leading: Consumer<Product>(
+            builder: (context, changedProduct, _) =>
+                IconButton(
+                  icon: Icon(
+                    changedProduct.isFavorite
+                        ? Icons.favorite
+                        : Icons.favorite_border,
+                  ),
+                  color: Theme
+                      .of(context)
+                      .accentColor,
+                  onPressed: changedProduct.toggleFavorite,
+                ),
           ),
           title: Text(
-            title,
+            loadedProduct.title,
             textAlign: TextAlign.center,
           ),
-          subtitle: Text(description),
+          subtitle: Text('\$${loadedProduct.price}'),
           trailing: IconButton(
             icon: Icon(Icons.add_shopping_cart),
             color: Theme.of(context).accentColor,
